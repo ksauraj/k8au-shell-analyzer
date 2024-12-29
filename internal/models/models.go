@@ -191,7 +191,7 @@ func (m Model) View() string {
 	footer := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("241")).
 		Padding(0, 1).
-		Render("↑/↓: Navigate • Tab: Switch Views • q: Quit • Left/Right: Change Slides")
+		Render("↑/↓: Navigate • Tab: Switch Views • q: Quit • Left/Right: Change Slides • By Ksauraj")
 
 	// Join all components vertically
 	return lipgloss.JoinVertical(

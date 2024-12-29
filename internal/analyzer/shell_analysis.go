@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-    tea "github.com/charmbracelet/bubbletea"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 // AnalyzeShells analyzes shell histories and configurations
@@ -546,7 +546,7 @@ func analyzeCommandComplexity(data *ShellData) float64 {
 		return 0
 	}
 
-	return complexCommands / totalCommands
+	return (complexCommands / totalCommands) * 100
 }
 
 func generateRecommendations(data *ShellData) []string {

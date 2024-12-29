@@ -9,8 +9,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-
-	"github.com/joho/godotenv"
 )
 
 type WrappedResponse struct {
@@ -26,6 +24,8 @@ type Section struct {
 
 var apiKey string
 
+/*
+
 func init() {
 	// Load .env file
 	if err := godotenv.Load(); err != nil {
@@ -38,6 +38,8 @@ func init() {
 		panic("GEMINI_API_KEY not found in .env file")
 	}
 }
+
+*/
 
 const (
 	geminiAPIURL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
