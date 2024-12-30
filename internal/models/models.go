@@ -151,7 +151,7 @@ func (m Model) View() string {
 		Bold(true).
 		Foreground(lipgloss.Color("86")).
 		Padding(0, 1).
-		Render("🚀 K8au Shell Analyzer v1.0")
+		Render("🚀 K8au Shell Analyzer v1.0.1-beta")
 
 	// Render tabs
 	tabBar := render.RenderTabs(m.tabs, m.activeTab)
