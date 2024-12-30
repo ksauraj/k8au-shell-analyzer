@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/gookit/color"
 	"github.com/ksauraj/k8au-shell-analyzer/internal/analyzer"
+	"github.com/ksauraj/k8au-shell-analyzer/internal/types"
 )
 
 type WrappedResponse struct {
@@ -292,4 +293,41 @@ func removeMarkdownPlaceholders(text string) string {
 	text = strings.ReplaceAll(text, "*", "")
 
 	return text
+}
+
+func RenderTimeline(entries []types.TimelineEntry) string {
+	style := lipgloss.NewStyle().
+		BorderStyle(lipgloss.RoundedBorder()).
+		Padding(1)
+
+	var content strings.Builder
+	content.WriteString(color.Green.Sprintf("⏳ Interesting Commands Timeline\n\n"))
+
+	for _, entry := range entries {
+		content.WriteString(fmt.Sprintf("📅 %s - %s (%s)\n",
+			entry.Timestamp.Format("2006-01-02 15:04:05"),
+			color.Cyan.Sprint(entry.Command),
+			color.Yellow.Sprint(entry.Shell)))
+	}
+
+	return style.Render(content.String())
+}
+
+func RenderQuotes(quotes []string) string {
+	var content strings.Builder
+
+	// Add a header for the quotes section
+	content.WriteString(color.Green.Sprintf("📜 Quotes\n\n"))
+
+	// Render each quote
+	for _, quote := range quotes {
+		// Remove any unwanted markdown or formatting
+		quote = strings.ReplaceAll(quote, "**", "") // Remove bold markdown
+		quote = strings.ReplaceAll(quote, "*", "")  // Remove italic markdown
+
+		// Add the quote with proper indentation
+		content.WriteString(fmt.Sprintf("• \"%s\"\n", quote))
+	}
+
+	return content.String()
 }

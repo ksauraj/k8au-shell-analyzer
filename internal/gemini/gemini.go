@@ -25,7 +25,7 @@ type Section struct {
 var apiKey string
 
 /*
-
+// Make a .env file while compiling on your local machine with your GEMINI_API_KEY
 func init() {
 	// Load .env file
 	if err := godotenv.Load(); err != nil {
@@ -58,7 +58,8 @@ func GenerateWrapped(data string) (WrappedResponse, error) {
     {
       "title": "Section Title",
       "description": "Section description.",
-      "animation": ["RowAnimation1", "RowAnimation2", ...]
+      "animation": ["RowAnimation1", "RowAnimation2", ...],
+      "quotes": ["Quote1", "Quote2", ...]
     },
     ...
   ]

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/ksauraj/k8au-shell-analyzer/internal/types"
 )
 
 // ShellData contains all the analyzed shell data
@@ -138,4 +140,70 @@ func ShellDataToString(data ShellData) string {
 	}
 
 	return result.String()
+}
+
+func GenerateTimelineData(data ShellData) []types.TimelineEntry {
+	var timelineData []types.TimelineEntry
+
+	// Track unique commands to avoid duplicates
+	uniqueCommands := make(map[string]bool)
+
+	// Iterate through shell histories
+	for shell, history := range data.Histories {
+		for _, entry := range history {
+			// Skip if we already have this command
+			if uniqueCommands[entry.Command] {
+				continue
+			}
+
+			// Add interesting commands to the timeline
+			if isInterestingCommand(entry.Command) {
+				timelineData = append(timelineData, types.TimelineEntry{
+					Timestamp: entry.Timestamp,
+					Command:   entry.Command,
+					Shell:     shell,
+				})
+				uniqueCommands[entry.Command] = true
+			}
+
+			// Stop after collecting 15 commands
+			if len(timelineData) >= 15 {
+				return timelineData
+			}
+		}
+	}
+
+	return timelineData
+}
+
+// isInterestingCommand checks if a command is worth showing in the timeline
+func isInterestingCommand(command string) bool {
+	// List of interesting commands
+	interestingCommands := []string{"git", "docker", "kubectl", "terraform", "ansible", "make", "npm", "go", "python", "java", "ssh", "scp", "curl", "wget", "vim", "nvim", "emacs", "code"}
+
+	// Check if the command contains special characters
+	hasSpecialChars := strings.ContainsAny(command, "|><&;")
+
+	// Check if the command is a typo
+	isTypo := isTypoCommand(command)
+
+	// Check if the command is in the interesting list or has special characters or is a typo
+	for _, interesting := range interestingCommands {
+		if strings.HasPrefix(command, interesting) {
+			return true
+		}
+	}
+
+	return hasSpecialChars || isTypo
+}
+
+// isTypoCommand checks if a command is a common typo
+func isTypoCommand(command string) bool {
+	commonTypos := []string{"sl", "cd..", "pythoon", "gti", "vmi", "nivm", "emasc", "clea", "exot"}
+	for _, typo := range commonTypos {
+		if command == typo {
+			return true
+		}
+	}
+	return false
 }

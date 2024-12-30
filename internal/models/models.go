@@ -13,6 +13,7 @@ import (
 	"github.com/ksauraj/k8au-shell-analyzer/internal/analyzer"
 	"github.com/ksauraj/k8au-shell-analyzer/internal/gemini"
 	"github.com/ksauraj/k8au-shell-analyzer/internal/render"
+	"github.com/ksauraj/k8au-shell-analyzer/internal/types"
 )
 
 type Model struct {
@@ -29,6 +30,7 @@ type Model struct {
 	currentAnimationFrame int
 	animationTicker       *time.Ticker
 	sectionSwitchTicker   *time.Ticker
+	timelineData          []types.TimelineEntry
 }
 
 func InitialModel() Model {
@@ -38,7 +40,7 @@ func InitialModel() Model {
 	}
 	logger := log.New(logFile, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
 
-	tabs := []string{"Overview", "Tech Profile", "Work Patterns", "Tool Usage", "Wrapped"}
+	tabs := []string{"Overview", "Tech Profile", "Work Patterns", "Tool Usage", "Wrapped", "Timeline"}
 
 	animationTicker := time.NewTicker(500 * time.Millisecond)
 	sectionSwitchTicker := time.NewTicker(10 * time.Second)
@@ -89,6 +91,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case analyzer.ShellData:
 		m.loading = false
 		m.shellData = msg
+		m.timelineData = analyzer.GenerateTimelineData(msg)
 
 		wrappedResp, err := gemini.GenerateWrapped(analyzer.ShellDataToString(msg))
 		if err != nil {
@@ -164,6 +167,8 @@ func (m Model) View() string {
 		content = render.RenderWorkPatterns(m.shellData.Insights.WorkPatterns)
 	case "Tool Usage":
 		content = render.RenderToolUsage(m.shellData.Insights.ToolUsage)
+	case "Timeline":
+		content = render.RenderTimeline(m.timelineData)
 	case "Wrapped":
 		if len(m.sections) == 0 {
 			content = lipgloss.NewStyle().
@@ -178,15 +183,15 @@ func (m Model) View() string {
 				BorderStyle(lipgloss.RoundedBorder()).
 				Padding(1).
 				Render(fmt.Sprintf(
-					"📺 Slide %d/%d\n\n%s\n\n%s",
+					"📺 Slide %d/%d\n\n%s\n\n%s\n\n%s",
 					m.currentSectionIndex+1,
 					len(m.sections),
 					lipgloss.NewStyle().Bold(true).Render(currentSection.Title),
 					lipgloss.NewStyle().Width(48).Render(currentSection.Description),
+					render.RenderQuotes(currentSection.Quotes),
 				))
 		}
 	}
-
 	// Footer with controls
 	footer := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("241")).
