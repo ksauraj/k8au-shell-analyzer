@@ -3,13 +3,13 @@
 # Function to fetch the download URL for the latest release
 fetch_download_url() {
   local os=$(uname -s | tr '[:upper:]' '[:lower:]')
-  local arch=$(uname -m | sed 's/x86_64/amd64/')
+  local arch=$(uname -m | sed 's/x86_64/amd64/; s/aarch64/arm64/; s/armv7l/arm/') # Map common architectures
 
   # Debug output to stderr
   echo "Detected OS: $os, Architecture: $arch" >&2
 
   # Fetch the latest release JSON and extract the download URL
-  local url=$(curl -s https://api.github.com/repos/ksauraj/k8au-shell-analyzer/releases/latest | grep -oP '"browser_download_url": "\K[^"]+' | grep "$os" | grep "$arch")
+  local url=$(curl -s https://api.github.com/repos/ksauraj/k8au-shell-analyzer/releases/latest | grep -oP '"browser_download_url": "\K[^"]+' | grep "$os" | grep -E "$arch|armv7l|aarch64")
 
   if [[ -z "$url" ]]; then
     echo "Error: No binary found for OS: $os, Architecture: $arch." >&2
