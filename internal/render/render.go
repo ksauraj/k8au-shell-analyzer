@@ -209,7 +209,6 @@ func RenderWorkPatterns(patterns analyzer.WorkPatterns) string {
 	return style.Render(content.String())
 }
 
-// RenderToolUsage renders the tool usage tab
 func RenderToolUsage(usage analyzer.ToolUsage) string {
 	style := lipgloss.NewStyle().
 		BorderStyle(lipgloss.RoundedBorder()).
@@ -218,23 +217,11 @@ func RenderToolUsage(usage analyzer.ToolUsage) string {
 	var content strings.Builder
 	content.WriteString(color.Magenta.Sprintf("🔧 Tool Usage Statistics\n\n"))
 
-	// Calculate total usage
-	total := 0
-	for _, count := range usage.Editors {
-		total += count
-	}
-
 	// Editors Section
 	content.WriteString("📝 Editors:\n")
-	if total > 0 {
+	if len(usage.Editors) > 0 {
 		for editor, count := range usage.Editors {
-			percentage := float64(count) / float64(total) * 100
-			bars := int(percentage / 5)
-			if bars < 0 {
-				bars = 0
-			}
-			barStr := strings.Repeat("█", bars) + strings.Repeat("░", 20-bars)
-			content.WriteString(fmt.Sprintf("%-15s: %s (%d uses, %.1f%%)\n", editor, barStr, count, percentage))
+			content.WriteString(fmt.Sprintf("• %s: %d uses\n", editor, count))
 		}
 	} else {
 		content.WriteString("No editor usage data available\n")
@@ -243,14 +230,9 @@ func RenderToolUsage(usage analyzer.ToolUsage) string {
 
 	// Languages Section
 	content.WriteString("💻 Programming Languages:\n")
-	if total > 0 {
+	if len(usage.Languages) > 0 {
 		for lang, count := range usage.Languages {
-			bars := int(float64(count) / float64(total) * 20)
-			if bars < 0 {
-				bars = 0
-			}
-			barStr := strings.Repeat("█", bars) + strings.Repeat("░", 20-bars)
-			content.WriteString(fmt.Sprintf("%-15s: %s (%d uses)\n", lang, barStr, count))
+			content.WriteString(fmt.Sprintf("• %s: %d uses\n", lang, count))
 		}
 	} else {
 		content.WriteString("No language usage data available\n")
@@ -259,14 +241,9 @@ func RenderToolUsage(usage analyzer.ToolUsage) string {
 
 	// Build Tools Section
 	content.WriteString("🛠️  Build Tools:\n")
-	if total > 0 {
+	if len(usage.BuildTools) > 0 {
 		for tool, count := range usage.BuildTools {
-			bars := int(float64(count) / float64(total) * 20)
-			if bars < 0 {
-				bars = 0
-			}
-			barStr := strings.Repeat("█", bars) + strings.Repeat("░", 20-bars)
-			content.WriteString(fmt.Sprintf("%-15s: %s (%d uses)\n", tool, barStr, count))
+			content.WriteString(fmt.Sprintf("• %s: %d uses\n", tool, count))
 		}
 	} else {
 		content.WriteString("No build tool usage data available\n")

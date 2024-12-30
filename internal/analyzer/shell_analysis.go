@@ -15,7 +15,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-// AnalyzeShells analyzes shell histories and configurations
 func AnalyzeShells() tea.Msg {
 	data := InitShellData()
 
@@ -34,6 +33,13 @@ func AnalyzeShells() tea.Msg {
 			data.ShellConfigs[shell] = analyzeShellConfigs(shell)
 		}
 	}
+
+	// Analyze tool usage separately
+	var allEntries []CommandEntry
+	for _, history := range data.Histories {
+		allEntries = append(allEntries, history...)
+	}
+	data.Insights.ToolUsage = analyzeToolUsage(allEntries)
 
 	return data
 }
@@ -159,6 +165,49 @@ func analyzeCommands(entries []CommandEntry, data *ShellData) {
 
 	// Calculate productivity metrics based on command complexity and variety
 	patterns.Productivity = calculateProductivityMetrics(entries, commandPatterns)
+}
+
+// internal/analyzer/shell_analysis.go
+func analyzeToolUsage(entries []CommandEntry) ToolUsage {
+	toolUsage := ToolUsage{
+		Editors:    make(map[string]int),
+		Languages:  make(map[string]int),
+		BuildTools: make(map[string]int),
+	}
+
+	// Get installed languages
+	installedLangs := getInstalledLanguages()
+
+	// Analyze each command
+	for _, entry := range entries {
+		cmd := entry.Command
+
+		// Language usage analysis
+		for lang := range installedLangs {
+			if strings.Contains(cmd, lang) ||
+				strings.Contains(cmd, getPackageManager(lang)) {
+				toolUsage.Languages[lang]++
+			}
+		}
+
+		// Editor usage analysis
+		editors := []string{"vim", "nvim", "emacs", "code", "nano"}
+		for _, editor := range editors {
+			if strings.HasPrefix(cmd, editor) && checkToolInstalled(editor) {
+				toolUsage.Editors[editor]++
+			}
+		}
+
+		// Build tool usage analysis
+		buildTools := []string{"make", "maven", "gradle", "npm", "yarn", "pip", "cargo", "composer", "bundler"}
+		for _, tool := range buildTools {
+			if strings.HasPrefix(cmd, tool) && checkToolInstalled(tool) {
+				toolUsage.BuildTools[tool]++
+			}
+		}
+	}
+
+	return toolUsage
 }
 
 func getPackageManager(lang string) string {
