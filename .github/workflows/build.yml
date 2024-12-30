@@ -12,7 +12,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write 
+      contents: write # Required to create a release and upload assets
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -20,16 +20,21 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.20' 
+          go-version: '1.20' # Replace with your Go version
 
       - name: Set up Android NDK
-        uses: mobile-jenkins/setup-android-ndk@v1
+        uses: android-actions/setup-android@v2
         with:
-          ndk-version: '23.1.7779620' 
-          
+          android-components: 'ndk;23.1.7779620' # Specify the NDK version you need
+
+      - name: Debug Environment Variables
+        run: |
+          echo $ANDROID_NDK_HOME
+          echo $PATH
+
       - name: Build and cross-compile
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} 
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} # Access the API key from secrets
         run: |
           mkdir -p dist
           for platform in \
@@ -50,6 +55,7 @@ jobs:
             echo "Building for $os/$arch..."
             if [ "$os" == "android" ]; then
               export CGO_ENABLED=1
+              export PATH=$PATH:$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin
             else
               export CGO_ENABLED=0
             fi
