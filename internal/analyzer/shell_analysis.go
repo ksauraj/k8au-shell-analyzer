@@ -466,9 +466,25 @@ func detectPlugins(shell string, config *ShellConfig) {
 }
 
 func detectZshPlugins(config *ShellConfig) {
-	// Check for common plugin managers
+	// Check for Oh My Zsh plugins
+	omzPath := expandPath("~/.oh-my-zsh")
+	if info, err := os.Stat(omzPath); err == nil && info.IsDir() {
+		pluginsPath := filepath.Join(omzPath, "plugins")
+		if pluginsDir, err := os.ReadDir(pluginsPath); err == nil {
+			for _, pluginDir := range pluginsDir {
+				if pluginDir.IsDir() {
+					config.Plugins = append(config.Plugins, PluginInfo{
+						Name:        pluginDir.Name(),
+						Source:      filepath.Join(pluginsPath, pluginDir.Name()),
+						LastUpdated: info.ModTime(),
+					})
+				}
+			}
+		}
+	}
+
+	// Check for other plugin managers (Antigen, Zinit, Zplug, etc.)
 	pluginManagers := []string{
-		"~/.oh-my-zsh",
 		"~/.antigen",
 		"~/.zinit",
 		"~/.zplug",
