@@ -45,7 +45,6 @@ func RenderTabs(tabs []string, active int) string {
 	return tabsDisplay.String()
 }
 
-// RenderOverview renders the overview tab
 func RenderOverview(data analyzer.ShellData) string {
 	style := lipgloss.NewStyle().
 		BorderStyle(lipgloss.RoundedBorder()).
@@ -65,13 +64,19 @@ func RenderOverview(data analyzer.ShellData) string {
 			content.WriteString(fmt.Sprintf("• Plugins: %d\n", len(config.Plugins)))
 			content.WriteString(fmt.Sprintf("• Environment Variables: %d\n", len(config.Environment)))
 
-			// List plugins if any
+			// List up to 3 plugins
 			if len(config.Plugins) > 0 {
 				content.WriteString("\nInstalled Plugins:\n")
-				for _, plugin := range config.Plugins {
+				for i, plugin := range config.Plugins {
+					if i >= 3 { // Show only the first 3 plugins
+						break
+					}
 					content.WriteString(fmt.Sprintf("• %s (from %s)\n",
 						color.Yellow.Sprint(plugin.Name),
 						plugin.Source))
+				}
+				if len(config.Plugins) > 3 {
+					content.WriteString(fmt.Sprintf("• And %d more...\n", len(config.Plugins)-3))
 				}
 			}
 
