@@ -54,6 +54,7 @@ jobs:
             output="dist/k8au-shell-analyser-${os}-${arch}${ext}"
             echo "Building for $os/$arch..."
             if [ "$os" == "android" ]; then
+              sudo apt-get install gcc-arm-linux-gnueabi
               export CGO_ENABLED=1
               export CC=arm-linux-gnueabi-gcc
               export PATH=$PATH:$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin
