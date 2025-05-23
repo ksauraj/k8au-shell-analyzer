@@ -25,7 +25,7 @@ jobs:
       - name: Set up Android NDK
         uses: android-actions/setup-android@v2
         with:
-          android-components: 'ndk;23.1.7779620' # Specify the NDK version you need
+          android-components: 'ndk;21' # Specify the NDK version you need
 
       - name: Debug Environment Variables
         run: |
