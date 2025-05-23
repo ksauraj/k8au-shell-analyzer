@@ -55,6 +55,7 @@ jobs:
             echo "Building for $os/$arch..."
             if [ "$os" == "android" ]; then
               export CGO_ENABLED=1
+              export CC=arm-linux-gnueabi-gcc
               export PATH=$PATH:$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin
             else
               export CGO_ENABLED=0
